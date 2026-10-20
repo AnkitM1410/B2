@@ -1,0 +1,41 @@
+# docker-compose.prod.yml
+# Pulls the pre-built image from GitHub Container Registry.
+# Usage:
+#   docker compose -f docker-compose.prod.yml up -d
+#
+# To use a specific version instead of :main, override the tag:
+#   IMAGE_TAG=v1.2.3 docker compose -f docker-compose.prod.yml up -d
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: memory
+      POSTGRES_PASSWORD: memory
+      POSTGRES_DB: memory_graph
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U memory -d memory_graph"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    image: ghcr.io/ankitm1410/b2:${IMAGE_TAG:-main}
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://memory:memory@db:5432/memory_graph
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:

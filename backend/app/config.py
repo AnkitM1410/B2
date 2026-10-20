@@ -26,10 +26,10 @@ class Settings(BaseSettings):
     stt_api_key: str = ""
     stt_api_base: str = ""
 
-    tts_provider: str = "grok"
+    tts_provider: str = "groq"
     tts_api_key: str = ""
-    tts_api_base: str = "https://api.x.ai/v1"
-    tts_model: str = "grok-tts"
+    tts_api_base: str = "https://api.groq.com/openai/v1"
+    tts_model: str = "playai-tts"
 
 
 @lru_cache

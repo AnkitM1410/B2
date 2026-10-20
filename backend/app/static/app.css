@@ -33,6 +33,7 @@
   --radius-lg: 16px;
   --pad:       1rem;
   --max:       42rem;
+  --max-wide:  72rem;
 
   font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
   font-size: 15px;
@@ -117,6 +118,46 @@ main {
   max-width: var(--max);
   margin: 0 auto;
   padding: 1.5rem var(--pad) 4rem;
+}
+
+/* ── Node detail: two-column grid ───────────────────────── */
+
+.nd-header {
+  max-width: var(--max-wide);
+  margin: 0 auto 1.25rem;
+  padding: 0 var(--pad);
+}
+
+.nd-grid {
+  max-width: var(--max-wide);
+  margin: 0 auto;
+  padding: 0 var(--pad) 4rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.nd-left,
+.nd-right {
+  /* each column is itself a .stack */
+  min-width: 0;
+}
+
+.nd-section-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--border);
+}
+
+@media (max-width: 720px) {
+  .nd-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .stack {
