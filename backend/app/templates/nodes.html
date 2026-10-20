@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Nodes — B2{% endblock %}
+{% block content %}
+<section class="stack">
+  <h1>Nodes</h1>
+
+  <form method="get" action="/nodes" class="row">
+    <input type="search" name="q" value="{{ q }}" placeholder="Search nodes…" style="flex:1" />
+    <button type="submit" style="width:auto">Search</button>
+  </form>
+
+  <form method="post" action="/nodes" class="stack card-plain">
+    <label>Quick create</label>
+    <input type="text" name="name" required placeholder="Name" />
+    <select name="type">
+      <option value="person">person</option>
+      <option value="thing">thing</option>
+      <option value="place">place</option>
+      <option value="other" selected>other</option>
+    </select>
+    <div class="speech-field">
+      <textarea name="summary" id="new_summary" rows="2" placeholder="Initial summary (optional)"></textarea>
+      <button type="button" class="mic-btn" data-speech-target="new_summary" aria-label="Speak">🎙</button>
+    </div>
+    <button type="submit">Create node</button>
+  </form>
+
+  <ul class="list">
+    {% for node in nodes %}
+    <li>
+      <a href="/nodes/{{ node.id }}">
+        <span class="list-title">{{ node.name }}</span>
+        <div class="row" style="gap:0.5rem">
+          <span class="badge badge-default">{{ node.type.value }}</span>
+          <span class="ts">Updated {{ node.updated_at.strftime('%b %d, %Y · %H:%M') }}</span>
+        </div>
+        {% if node.summaries %}
+        <span class="muted">{{ node.summaries[0].content[:80] }}{% if node.summaries[0].content|length > 80 %}…{% endif %}</span>
+        {% endif %}
+      </a>
+    </li>
+    {% else %}
+    <li class="empty">No nodes yet. Create one above.</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endblock %}

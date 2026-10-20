@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Inbox — B2{% endblock %}
+{% block content %}
+<section class="stack">
+  <h1>Inbox</h1>
+  <p class="muted">Capture notes here. Nothing hits the graph until you approve.</p>
+
+  <form method="post" action="/inbox" class="stack card-plain">
+    <label for="raw_text">New note</label>
+    <div class="speech-field">
+      <textarea id="raw_text" name="raw_text" rows="4" required placeholder="Met Priya — she started a new job at Acme…"></textarea>
+      <button type="button" class="mic-btn" data-speech-target="raw_text" aria-label="Speak">🎙</button>
+    </div>
+    <button type="submit">Queue for review</button>
+  </form>
+
+  <div class="tabs">
+    <a href="/inbox?status=pending" class="{% if status == 'pending' %}active{% endif %}">Pending</a>
+    <a href="/inbox?status=approved" class="{% if status == 'approved' %}active{% endif %}">Approved</a>
+    <a href="/inbox?status=rejected" class="{% if status == 'rejected' %}active{% endif %}">Rejected</a>
+  </div>
+
+  <ul class="list">
+    {% for item in items %}
+    <li>
+      <a href="/inbox/{{ item.id }}">
+        <span class="list-title">{{ item.raw_text[:120] }}{% if item.raw_text|length > 120 %}…{% endif %}</span>
+        <span class="ts">Submitted {{ item.created_at.strftime('%b %d, %Y · %H:%M') }}</span>
+        {% if item.approved_at %}
+        <span class="ts ts-approved">Approved {{ item.approved_at.strftime('%b %d, %Y · %H:%M') }}</span>
+        {% endif %}
+      </a>
+    </li>
+    {% else %}
+    <li class="empty">No {{ status }} items.</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endblock %}

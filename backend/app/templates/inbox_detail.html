@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Review — B2{% endblock %}
+{% block content %}
+<section class="stack">
+  <p><a href="/inbox">← Inbox</a></p>
+  <h1>Review Entry</h1>
+
+  <!-- Status + timestamps -->
+  <div class="row">
+    {% set sv = item.status.value %}
+    <span class="badge badge-{{ sv }}">{{ sv }}</span>
+  </div>
+
+  <div class="stack" style="gap:0.35rem">
+    <span class="ts">Submitted {{ item.created_at.strftime('%b %d, %Y · %H:%M') }}</span>
+    {% if item.approved_at %}
+    <span class="ts ts-approved">Approved {{ item.approved_at.strftime('%b %d, %Y · %H:%M') }}</span>
+    {% endif %}
+  </div>
+
+  {% if item.error %}<p class="error">⚠ {{ item.error }}</p>{% endif %}
+
+  {% if item.status.value == 'pending' %}
+  <form method="post" action="/inbox/{{ item.id }}/save" class="stack">
+    <label for="raw_text">Raw note</label>
+    <div class="speech-field">
+      <textarea id="raw_text" name="raw_text" rows="4" required>{{ item.raw_text }}</textarea>
+      <button type="button" class="mic-btn" data-speech-target="raw_text" aria-label="Speak">🎙</button>
+    </div>
+
+    <label for="proposal_json">Proposal (JSON — edit before approve)</label>
+    <textarea id="proposal_json" name="proposal_json" rows="16" class="mono">{{ proposal_json }}</textarea>
+
+    <div class="row">
+      <button type="submit">Save edits</button>
+    </div>
+  </form>
+
+  <div class="row">
+    <form method="post" action="/inbox/{{ item.id }}/repropose">
+      <button type="submit" class="secondary">↺ Re-run AI propose</button>
+    </form>
+    <form method="post" action="/inbox/{{ item.id }}/approve">
+      <button type="submit">✓ Approve</button>
+    </form>
+    <form method="post" action="/inbox/{{ item.id }}/reject">
+      <button type="submit" class="danger">✕ Reject</button>
+    </form>
+  </div>
+  {% else %}
+  <div class="card-plain">
+    <p class="muted" style="margin-bottom:0.6rem">{{ item.raw_text }}</p>
+  </div>
+  <pre class="mono">{{ proposal_json }}</pre>
+  {% endif %}
+</section>
+{% endblock %}

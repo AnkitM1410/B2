@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}{{ node.name }} — B2{% endblock %}
+{% block content %}
+<section class="stack">
+  <p><a href="/nodes">← Nodes</a></p>
+  <h1>{{ node.name }}</h1>
+  <span class="badge badge-default">{{ node.type.value }}</span>
+  <p class="ts">Created {{ node.created_at.strftime('%b %d, %Y · %H:%M') }}</p>
+
+  <!-- Name / Type edit -->
+  <form method="post" action="/nodes/{{ node.id }}" class="stack card-plain">
+    <label for="name">Name</label>
+    <input id="name" name="name" value="{{ node.name }}" required />
+
+    <label for="type">Type</label>
+    <select id="type" name="type">
+      {% for t in types %}
+      <option value="{{ t.value }}" {% if node.type == t %}selected{% endif %}>{{ t.value }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit">Save changes</button>
+  </form>
+
+  <!-- Summaries -->
+  <div class="section-header">
+    <h2>Summaries</h2>
+    <span class="muted">{{ node.summaries | length }} entr{{ 'y' if node.summaries | length == 1 else 'ies' }}</span>
+  </div>
+  <ul class="list">
+    {% for s in node.summaries %}
+    <li class="summary-entry">
+      <div class="summary-text">{{ s.content }}</div>
+      <div class="summary-actions">
+        <span class="ts">{{ s.created_at.strftime('%b %d, %Y · %H:%M') }}</span>
+        <form method="post" action="/nodes/{{ node.id }}/summaries/{{ s.id }}/delete">
+          <button type="submit" class="danger small">Delete</button>
+        </form>
+      </div>
+    </li>
+    {% else %}
+    <li class="empty">No summaries yet — add the first one below.</li>
+    {% endfor %}
+  </ul>
+
+  <form method="post" action="/nodes/{{ node.id }}/summaries" class="stack card-plain">
+    <label for="summary_content">Add summary entry</label>
+    <div class="speech-field">
+      <textarea id="summary_content" name="content" rows="3" required placeholder="What do you know about {{ node.name }}?"></textarea>
+      <button type="button" class="mic-btn" data-speech-target="summary_content" aria-label="Speak">🎙</button>
+    </div>
+    <button type="submit">Add summary</button>
+  </form>
+
+  <!-- Facts -->
+  <h2>Facts</h2>
+  <ul class="list">
+    {% for fact in node.facts %}
+    <li class="fact-row">
+      <div class="fact-content">
+        <div>{{ fact.content }}</div>
+        <span class="ts">{{ fact.created_at.strftime('%b %d, %Y · %H:%M') }}</span>
+      </div>
+      <form method="post" action="/nodes/{{ node.id }}/facts/{{ fact.id }}/delete">
+        <button type="submit" class="danger small">Delete</button>
+      </form>
+    </li>
+    {% else %}
+    <li class="empty">No facts yet.</li>
+    {% endfor %}
+  </ul>
+
+  <form method="post" action="/nodes/{{ node.id }}/facts" class="stack card-plain">
+    <label for="fact_content">Add fact</label>
+    <div class="speech-field">
+      <textarea id="fact_content" name="content" rows="2" required placeholder="Likes dark roast coffee"></textarea>
+      <button type="button" class="mic-btn" data-speech-target="fact_content" aria-label="Speak">🎙</button>
+    </div>
+    <button type="submit">Add fact</button>
+  </form>
+
+  <!-- Links -->
+  <h2>Links</h2>
+  <ul class="list">
+    {% for edge in edges %}
+    <li class="fact-row">
+      <span class="fact-content">
+        {% if edge.from_id == node.id %}
+          → <strong>{{ all_nodes[edge.to_id].name if edge.to_id in all_nodes else edge.to_id }}</strong>
+        {% else %}
+          ← <strong>{{ all_nodes[edge.from_id].name if edge.from_id in all_nodes else edge.from_id }}</strong>
+        {% endif %}
+        <span class="muted"> {{ edge.rel_type }}{% if edge.label %} · {{ edge.label }}{% endif %}</span>
+        <br/><span class="ts">{{ edge.created_at.strftime('%b %d, %Y · %H:%M') }}</span>
+      </span>
+      <form method="post" action="/edges/{{ edge.id }}/delete">
+        <input type="hidden" name="node_id" value="{{ node.id }}" />
+        <button type="submit" class="danger small">Delete</button>
+      </form>
+    </li>
+    {% else %}
+    <li class="empty">No links yet.</li>
+    {% endfor %}
+  </ul>
+
+  <form method="post" action="/nodes/{{ node.id }}/edges" class="stack card-plain">
+    <label>Link to node</label>
+    <select name="to_id" required>
+      {% for n in all_nodes.values() %}
+        {% if n.id != node.id %}
+        <option value="{{ n.id }}">{{ n.name }}</option>
+        {% endif %}
+      {% endfor %}
+    </select>
+    <input name="rel_type" placeholder="Relationship type (e.g. works_at)" value="related_to" />
+    <input name="label" placeholder="Label (optional)" />
+    <button type="submit">Add link</button>
+  </form>
+</section>
+{% endblock %}

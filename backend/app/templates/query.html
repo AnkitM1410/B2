@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Query — B2{% endblock %}
+{% block content %}
+<section class="stack">
+  <h1>Query</h1>
+  <p class="muted">Ask about people and things you've stored.</p>
+
+  <form method="post" action="/query" class="stack card-plain">
+    <label for="question">Question</label>
+    <div class="speech-field">
+      <textarea id="question" name="question" rows="3" required placeholder="What does Priya work on?">{{ question }}</textarea>
+      <button type="button" class="mic-btn" data-speech-target="question" aria-label="Speak">Mic</button>
+    </div>
+    <button type="submit">Ask</button>
+  </form>
+
+  {% if answer is not none %}
+  <article class="stack card-plain">
+    <h2>Answer</h2>
+    <p id="answer-text">{{ answer }}</p>
+    <button type="button" id="speak-answer" class="secondary">Speak answer</button>
+  </article>
+
+  <h2>Sources</h2>
+  <ul class="list">
+    {% for s in sources %}
+    <li>
+      <a href="/nodes/{{ s.node_id }}">{{ s.node_name }}</a>
+      <span class="muted">{{ s.content }}</span>
+    </li>
+    {% else %}
+    <li class="muted">No sources.</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+</section>
+{% endblock %}
